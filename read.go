@@ -9,4 +9,8 @@ type CsvReader struct {
 }
 
 func (cr *CsvReader) NewSeries(col int) *Series {}
+
+func (cr *CsvReader) typeSelector() {
+}
+
 func (cr *CsvReader) NewDataFrame() *DataFrame {}
