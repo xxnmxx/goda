@@ -58,10 +58,10 @@ func (n *Network) Forword(ins []float64) []float64 {
 	return outs
 }
 
-// Activators
+// Activators not use now.
 type activator func(float64) float64
 
-func Sigmoid(in float64) float64 {
+func Sigm0id(in float64) float64 {
 	return 1 / (1 + math.Pow(math.E, -in))
 }
 
@@ -95,7 +95,7 @@ func SoftMax(ins []float64) []float64 {
 	return outs
 }
 
-// Array Operation
+// Matrix Operation
 func InnerProduct(ins []float64, ws [][]float64) []float64 {
 	// Check the shape
 	if len(ins) != len(ws) {
@@ -115,6 +115,53 @@ func Add(ins []float64, add []float64) []float64 {
 		ins[i] += add[i]
 	}
 	return ins
+}
+
+func Transpose(ins [][]float64) [][]float64 {
+	outs := NewMatrix(len(ins[0]),len(ins))
+	for i, in := range ins {
+		for j, v := range in {
+			outs[j][i] = v
+		}
+	}
+	return outs
+}
+
+func NewMatrix(r,c int) [][]float64 {
+	outs := make([][]float64,r)
+	for i := 0; i < r; i++ {
+		outs[i] = make([]float64,c)
+	}
+	return outs
+}
+
+func SumRows(ins [][]float64) []float64 {
+	outs := make([]float64,len(ins))
+	for i, in := range ins {
+		for _, v := range in {
+			outs[i] += v
+		}
+	}
+	return outs
+}
+
+func SumCols(ins [][]float64) []float64 {
+	outs := make([]float64,len(ins[0]))
+	insT := Transpose(ins)
+	for i, in := range insT {
+		for _, v := range in {
+			outs[i] += v
+		}
+	}
+	return outs
+}
+
+func Sum(ins []float64) float64 {
+	out := 0.0
+	for _, v := range ins {
+		out += v
+	}
+	return out
 }
 
 func Activate(ins []float64, f activator) []float64 {
