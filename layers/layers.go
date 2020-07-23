@@ -74,10 +74,11 @@ type Affine struct {
 	w  [][]float64
 	b  []float64
 	x  []float64
-	dW [][]float64
+	dw [][]float64
 	db []float64
 }
 
+// FixMe
 func NewAffine(inputSize, layerSize int) *Affine {
 	src := rand.NewSource(time.Now().Unix())
 	r := rand.New(src)
