@@ -11,6 +11,7 @@ import (
 	"time"
 )
 
+// Tensor is multi dimensional array.
 type Tensor struct {
 	Data   []float64
 	Shape  []int
@@ -18,6 +19,15 @@ type Tensor struct {
 }
 
 // New functions
+// NewTensor makes tensor from given data.
+func NewTensor(data []float64,shape ...int) *Tensor {
+	return &Tensor{
+		Data:data,
+		Shape:shape,
+		Stride:stride(shape),
+	}
+}
+
 // NewZeros returns zeros tensor.
 func NewZeros(shape ...int) *Tensor {
 	return &Tensor{
@@ -38,9 +48,13 @@ func NewOnes(shape ...int) *Tensor {
 }
 
 func length(shape []int) int {
-	length := shape[0]
-	for _, v := range shape {
-		length *= v
+	length := 0
+	for i, v := range shape {
+		if i == 0 {
+			length += v
+		} else {
+			length *= v
+		}
 	}
 	return length
 }
@@ -57,9 +71,9 @@ func stride(shape []int) []int {
 	return stride
 }
 
-func nums(num float64, shape []float64) []float64 {
+func nums(num float64, shape []int) []float64 {
 	out := make([]float64, length(shape))
-	for i := 0; i > len(length(shape)); i++ {
+	for i := 0; i < length(shape); i++ {
 		out[i] = num
 	}
 	return out
@@ -164,11 +178,11 @@ func format(in []string) string {
 	return b.String()
 }
 
-// Randamize
+// Randomize
 func (ts *Tensor) Randomize() {
 	src := rand.NewSource(time.Now().Unix())
 	r := rand.New(src)
-	for i, v := range ts.Data {
+	for i, _ := range ts.Data {
 		ts.Data[i] = r.NormFloat64()
 	}
 }
