@@ -21,10 +21,7 @@ func Dot(a, b *Tensor) *Tensor {
 		return nil
 	}
 	shape := []int{a.Shape[0], b.Shape[len(b.Shape)-1]}
-	//dot := NewZeros(shape...)
 	dot := NewZeros(shape...)
-	//itvA := a.Stride[len(a.Stride)-1]
-	//itvB := b.Stride[0]
 	for i := 0; i < a.Shape[1]; i++ {
 		posA := 0
 		for j := 0; j < len(dot.Data); j++ {
