@@ -22,6 +22,9 @@ func Dot(a, b *Tensor) *Tensor {
 	}
 	shape := []int{a.Shape[0], b.Shape[len(b.Shape)-1]}
 	dot := NewZeros(shape...)
+	// product dot[0]...dot[fin].
+	// then add element a.Shape[len(a.Shape)-1] times.
+	// something like recursive method.
 	for i := 0; i < a.Shape[1]; i++ {
 		posA := 0
 		for j := 0; j < len(dot.Data); j++ {
