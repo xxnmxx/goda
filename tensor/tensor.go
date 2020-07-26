@@ -20,11 +20,11 @@ type Tensor struct {
 
 // New functions
 // NewTensor makes tensor from given data.
-func NewTensor(data []float64,shape ...int) *Tensor {
+func NewTensor(data []float64, shape ...int) *Tensor {
 	return &Tensor{
-		Data:data,
-		Shape:shape,
-		Stride:stride(shape),
+		Data:   data,
+		Shape:  shape,
+		Stride: stride(shape),
 	}
 }
 
@@ -133,6 +133,7 @@ func flatten(s [][]string) []string {
 }
 
 // Methods
+// ToDo:Reshape
 // Inspect returns formatted array.
 func (ts *Tensor) Inspect() string {
 	out := strConv(ts.Data)
