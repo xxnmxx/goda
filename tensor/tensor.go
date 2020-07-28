@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
+	"log"
 	"math/rand"
 	"os"
 	"strconv"
@@ -21,6 +22,9 @@ type Tensor struct {
 // New functions
 // NewTensor makes tensor from given data.
 func NewTensor(data []float64, shape ...int) *Tensor {
+	if !okLength(data, shape) {
+		log.Fatalf("valError:invalid shape len:%v,shape:%v\n", len(data), shape)
+	}
 	return &Tensor{
 		Data:   data,
 		Shape:  shape,
@@ -40,11 +44,18 @@ func NewZeros(shape ...int) *Tensor {
 // NewOnes returns ones tensor.
 func NewOnes(shape ...int) *Tensor {
 	ones := nums(1, shape)
+	if !okLength(ones, shape) {
+		log.Fatalf("valError:invalid shape len:%v,shape:%v\n", len(ones), shape)
+	}
 	return &Tensor{
 		Data:   ones,
 		Shape:  shape,
 		Stride: stride(shape),
 	}
+}
+
+func okLength(data []float64, shape []int) bool {
+	return len(data) == length(shape)
 }
 
 func length(shape []int) int {
@@ -83,8 +94,7 @@ func nums(num float64, shape []int) []float64 {
 func ReadCsv(path string) *Tensor {
 	f, err := os.Open(path)
 	if err != nil {
-		fmt.Printf("file open failed:%v", err)
-		return nil
+		log.Fatalf("file open failed:%v", err)
 	}
 	r := csv.NewReader(f)
 	recs := make([][]string, 0)
@@ -94,8 +104,7 @@ func ReadCsv(path string) *Tensor {
 			break
 		}
 		if err != nil {
-			fmt.Printf("file read failed:%v", err)
-			return nil
+			log.Fatalf("file read failed:%v", err)
 		}
 		recs = append(recs, rec)
 	}
@@ -114,8 +123,7 @@ func parseFloat(s []string) []float64 {
 	for i, v := range s {
 		float, err := strconv.ParseFloat(v, 64)
 		if err != nil {
-			fmt.Printf("parse float failed:%v", err)
-			return nil
+			log.Fatalf("parse float failed:%v", err)
 		}
 		floats[i] = float
 	}
@@ -178,6 +186,21 @@ func format(in []string) string {
 	}
 	return b.String()
 }
+
+// Len returns length(number of elements) of the tensor.
+func (ts *Tensor) Len() int {
+	return len(ts.Data)
+}
+
+// Shape returns shape of the tensor.
+//func (ts *Tensor) Shape() []int {
+//	return ts.Shape
+//}
+
+// Stride returns stride of the tensor.
+//func (ts *Tensor) Stride() []int {
+//	return ts.Stride
+//}
 
 // Randomize
 func (ts *Tensor) Randomize() {
