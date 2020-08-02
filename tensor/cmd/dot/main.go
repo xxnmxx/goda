@@ -7,9 +7,9 @@ import (
 
 func main() {
 	dataA := []float64{0,1,2}
-	dataB := []float64{0,1,2,3,4,5}
+	dataB := []float64{0,1,2}
 	a := tensor.NewTensor(dataA,3)
-	b := tensor.NewTensor(dataB,3,2)
+	b := tensor.NewTensor(dataB,3)
 	dot := tensor.Dot(a,b)
 	fmt.Println(a)
 	fmt.Println(b)

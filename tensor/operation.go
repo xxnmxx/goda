@@ -18,7 +18,7 @@ func Dot(a, b *Tensor) *Tensor {
 		log.Fatal("Error on Dot:dimension over flow(d > 2)")
 	}
 	if !checkShape(a, b) {
-		log.Fatal("Error on Dot:shepe does not match")
+		log.Fatal("Error on Dot:shape does not match")
 	}
 	// For 1D x 2D
 	var shape []int
@@ -60,7 +60,7 @@ func checkMat(a, b *Tensor) bool {
 	return len(a.Shape) <= 2 && len(b.Shape) <= 2
 }
 
-// Check shepe for dot production.
+// Check shape for dot production.
 func checkShape(a, b *Tensor) bool {
 	return a.Shape[len(a.Shape)-1] == b.Shape[0]
 }
@@ -150,46 +150,126 @@ func (ts *Tensor) Reshape(shape ...int) bool {
 }
 
 // BroadCasting wip
-func BroadCasting(a, b *Tensor) *Tensor {
-	if !okBroadCasting(a, b) {
-		fmt.Printf("could not be broadcast.\na:\n%v\nb:\n%v\n", a.Shape, b.Shape)
-		return nil
+// Add,Multi ...
+func Add(a, b *Tensor) *Tensor {
+	shape, ok := okBroadCasting(a, b)
+	if !ok {
+		log.Fatalf("could not be broadcast.\na:\n%v\nb:\n%v\n", a.Shape, b.Shape)
 	}
-	return nil
+	return NewTensor(bcAdd(shape,a,b),shape...)
 }
 
-func okBroadCasting(a, b *Tensor) bool {
+func Mul(a, b *Tensor) *Tensor {
+	shape, ok := okBroadCasting(a, b)
+	if !ok {
+		log.Fatalf("could not be broadcast.\na:\n%v\nb:\n%v\n", a.Shape, b.Shape)
+	}
+	return NewTensor(bcMul(shape,a,b),shape...)
+}
+
+func Div(a, b *Tensor) *Tensor {
+	shape, ok := okBroadCasting(a, b)
+	if !ok {
+		log.Fatalf("could not be broadcast.\na:\n%v\nb:\n%v\n", a.Shape, b.Shape)
+	}
+	return NewTensor(bcDiv(shape,a,b),shape...)
+}
+
+// wip
+func bcAdd(shape []int, a,b *Tensor) []float64 {
+	bc := make([]float64,length(shape))
+	if b.Shape[len(b.Shape)-1] == 1 && len(b.Data) != 1{
+		for i := range a.Data {
+			stretch := a.Shape[len(a.Shape)-1]
+			rep := len(b.Data)
+			bc[i] = a.Data[i] + b.Data[i/stretch%rep]
+		}
+		return bc
+	}
+	for i := range a.Data {
+		bc[i] = a.Data[i] + b.Data[i%len(b.Data)]
+	}
+	return bc
+}
+
+func bcMul(shape []int, a,b *Tensor) []float64 {
+	bc := make([]float64,length(shape))
+	if b.Shape[len(b.Shape)-1] == 1 && len(b.Data) != 1{
+		for i := range a.Data {
+			stretch := a.Shape[len(a.Shape)-1]
+			rep := len(b.Data)
+			bc[i] = a.Data[i] + b.Data[i/stretch%rep]
+		}
+		return bc
+	}
+	for i := range a.Data {
+		bc[i] = a.Data[i] * b.Data[i%len(b.Data)]
+	}
+	return bc
+}
+
+func bcDiv(shape []int, a,b *Tensor) []float64 {
+	bc := make([]float64,length(shape))
+	if b.Shape[len(b.Shape)-1] == 1 && len(b.Data) != 1{
+		for i := range a.Data {
+			stretch := a.Shape[len(a.Shape)-1]
+			rep := len(b.Data)
+			bc[i] = a.Data[i] + b.Data[i/stretch%rep]
+		}
+		return bc
+	}
+	for i := range a.Data {
+		bc[i] = a.Data[i] / b.Data[i%len(b.Data)]
+	}
+	return bc
+}
+
+func okBroadCasting(a, b *Tensor) ([]int, bool) {
 	if len(a.Shape) == len(b.Shape) {
 		return compSameDim(a, b)
 	}
 	return compDifDim(a, b)
 }
 
-func compSameDim(a, b *Tensor) bool {
+func compSameDim(a, b *Tensor) ([]int, bool) {
+	shape := make([]int, len(a.Shape))
 	for i := range a.Shape {
-		if a.Shape[i] == b.Shape[i] || a.Shape[i] == 1 || b.Shape[i] == 1 {
-			continue
-		} else {
-			return false
+		switch {
+		case a.Shape[i] == b.Shape[i]:
+			shape[i] = a.Shape[i]
+		case a.Shape[i] == 1:
+			shape[i] = b.Shape[i]
+		case b.Shape[i] == 1:
+			shape[i] = a.Shape[i]
+		default:
+			return nil, false
 		}
 	}
-	return true
+	return shape, true
 }
 
-func compDifDim(a, b *Tensor) bool {
+func compDifDim(a, b *Tensor) ([]int, bool) {
+	shape := make([]int, len(a.Shape))
 	dif := len(a.Shape) - len(b.Shape)
 	if dif < 0 {
-		fmt.Println("a must have more or same Dim than b")
-		return false
+		fmt.Println("a must have more or same Dim than that b have")
+		return nil, false
 	}
-	for i := range b.Shape {
-		if a.Shape[dif+i] == b.Shape[i] || a.Shape[dif+i] == 1 || b.Shape[i] == 1 {
-			continue
-		} else {
-			return false
+	for i := range a.Shape {
+		switch {
+		case i < dif:
+			shape[i] = a.Shape[i]
+		case a.Shape[i] == b.Shape[i-dif]:
+			shape[i] = a.Shape[i]
+		case a.Shape[i] == 1:
+			shape[i] = b.Shape[i-dif]
+		case b.Shape[i-dif] == 1:
+			shape[i] = a.Shape[i]
+		default:
+			return nil, false
 		}
 	}
-	return true
+	return shape, true
 }
 
 // Add

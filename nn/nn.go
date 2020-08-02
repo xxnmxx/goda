@@ -111,7 +111,7 @@ func InnerProduct(ins []float64, ws [][]float64) []float64 {
 }
 
 func Add(ins []float64, add []float64) []float64 {
-	for i, _ := range ins {
+	for i := range ins {
 		ins[i] += add[i]
 	}
 	return ins
